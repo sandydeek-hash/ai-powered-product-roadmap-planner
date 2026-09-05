@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-Powered Product Roadmap Planner — Digital Commerce Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #FAFAF8;
+  --bg-secondary: #F4F3EF;
+  --bg-tertiary: #ECEAE3;
+  --border: #E2E0D8;
+  --border-light: #EDECEA;
+  --text-primary: #1A1916;
+  --text-secondary: #6B6860;
+  --text-tertiary: #9C9A94;
+  --teal: #1D9E75;
+  --teal-light: #E1F5EE;
+  --teal-dark: #0F6E56;
+  --teal-mid: #9FE1CB;
+  --amber: #BA7517;
+  --amber-light: #FAEEDA;
+  --red: #E24B4A;
+  --red-light: #FCEBEB;
+  --blue: #185FA5;
+  --blue-light: #E6F1FB;
+  --purple: #534AB7;
+  --purple-light: #EEEDFE;
+  --green: #3B6D11;
+  --green-light: #EAF3DE;
+  --font-sans: 'DM Sans', sans-serif;
+  --font-serif: 'DM Serif Display', serif;
+  --radius: 8px;
+  --radius-sm: 5px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body { font-family: var(--font-sans); background: var(--bg-primary); color: var(--text-primary); font-size: 14px; line-height: 1.5; }
+
+/* LAYOUT */
+.app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: var(--bg-primary); }
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* APP HEADER */
+.app-header { padding: 12px 28px 0; background: var(--bg-secondary); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.app-header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.app-brand { font-size: 10px; font-weight: 600; color: var(--text-tertiary); letter-spacing: 0.08em; text-transform: uppercase; }
+.app-title { font-family: var(--font-serif); font-size: 15px; color: var(--text-primary); }
+.app-sub { font-size: 11px; color: var(--text-secondary); margin-top: 1px; }
+
+/* HORIZONTAL STEPPER */
+.stepper { display: flex; align-items: flex-start; justify-content: center; padding: 0 28px 16px; position: relative; }
+.stepper-track { position: absolute; top: 18px; left: 0; right: 0; height: 2px; background: var(--border); z-index: 0; margin: 0 80px; }
+.stepper-progress { height: 100%; background: var(--teal); transition: width 0.4s ease; }
+.step-item { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; z-index: 1; cursor: pointer; }
+.step-bubble { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--border); background: var(--bg-secondary); color: var(--text-tertiary); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; transition: all 0.2s; margin-bottom: 7px; }
+.step-item.active .step-bubble { border-color: var(--teal); background: var(--teal); color: #fff; box-shadow: 0 0 0 4px var(--teal-light); }
+.step-item.done .step-bubble { border-color: var(--teal); background: var(--teal-light); color: var(--teal-dark); }
+.step-item.done .step-bubble::after { content: '✓'; font-size: 13px; }
+.step-item.done .step-num { display: none; }
+.step-label { font-size: 11px; font-weight: 500; color: var(--text-tertiary); text-align: center; transition: color 0.2s; white-space: nowrap; }
+.step-item.active .step-label { color: var(--teal-dark); font-weight: 600; }
+.step-item.done .step-label { color: var(--text-secondary); }
+.step-sublabel { font-size: 10px; color: var(--text-tertiary); text-align: center; margin-top: 1px; white-space: nowrap; }
+.step-item.active .step-sublabel { color: var(--teal); }
+
+/* TOPBAR */
+.topbar { padding: 12px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--bg-primary); flex-shrink: 0; }
+.topbar-badge { font-size: 11px; background: var(--teal-light); color: var(--teal-dark); padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+.topbar-title { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+.topbar-sub { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+.btn { padding: 6px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: 13px; cursor: pointer; background: var(--bg-primary); color: var(--text-primary); font-family: var(--font-sans); font-weight: 400; transition: all 0.15s; }
+.btn:hover { background: var(--bg-secondary); }
+.btn-primary { background: var(--teal); color: #fff; border-color: var(--teal); }
+.btn-primary:hover { background: var(--teal-dark); }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+
+/* CONTENT */
+.content { flex: 1; overflow-y: auto; padding: 20px 22px; }
+.stage-panel { display: none; }
+.stage-panel.active { display: block; }
+
+/* FOOTER NAV */
+.footer-nav { padding: 11px 22px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-primary); flex-shrink: 0; }
+.footer-dots { display: flex; gap: 5px; }
+.f-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); cursor: pointer; transition: background 0.2s; }
+.f-dot.active { background: var(--teal); }
+.footer-hint { font-size: 12px; color: var(--text-tertiary); }
+
+/* COMPONENTS */
+.ai-box { background: var(--teal-light); border: 1px solid var(--teal-mid); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 16px; display: flex; gap: 10px; align-items: flex-start; }
+.ai-icon { width: 24px; height: 24px; background: var(--teal); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px; color: #fff; margin-top: 1px; }
+.ai-text { font-size: 13px; color: var(--teal-dark); line-height: 1.55; }
+.section-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
+.card { background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+.card + .card { margin-top: 12px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.grid4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+
+/* BADGES */
+.badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 500; padding: 2px 7px; border-radius: 4px; gap: 3px; white-space: nowrap; }
+.b-teal { background: var(--teal-light); color: var(--teal-dark); }
+.b-amber { background: var(--amber-light); color: #854F0B; }
+.b-red { background: var(--red-light); color: #A32D2D; }
+.b-blue { background: var(--blue-light); color: var(--blue); }
+.b-gray { background: var(--bg-tertiary); color: var(--text-secondary); }
+.b-purple { background: var(--purple-light); color: var(--purple); }
+.b-green { background: var(--green-light); color: var(--green); }
+
+/* TABLE */
+.tbl-wrap { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 600; color: var(--text-secondary); background: var(--bg-secondary); }
+td { padding: 9px 12px; border-bottom: 1px solid var(--border-light); vertical-align: middle; }
+.data-row:hover td { background: var(--bg-secondary); cursor: pointer; }
+.data-row:last-child td { border-bottom: none; }
+
+/* REASONING ROW */
+.reasoning-row { display: none; }
+.reasoning-row td { padding: 0; }
+.r-inner { padding: 14px 16px; border-left: 3px solid var(--teal); background: var(--bg-secondary); }
+.r-hd { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+.r-body { font-size: 13px; color: var(--text-primary); line-height: 1.6; }
+.rice-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-top: 10px; }
+.rice-cell { background: var(--bg-primary); border-radius: var(--radius-sm); padding: 9px 10px; border: 1px solid var(--border); }
+.rice-lbl { font-size: 10px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+.rice-val { font-size: 16px; font-weight: 500; color: var(--text-primary); }
+.rice-note { font-size: 11px; color: var(--text-secondary); margin-top: 2px; line-height: 1.4; }
+.dep-box { margin-top: 10px; padding: 8px 10px; background: var(--amber-light); border-radius: var(--radius-sm); font-size: 12px; color: #854F0B; }
+.chevron { font-size: 14px; color: var(--text-tertiary); transition: transform 0.2s; display: inline-block; }
+.row-expanded .chevron { transform: rotate(90deg); }
+
+/* SCORE BAR */
+.score-wrap { display: flex; align-items: center; gap: 6px; }
+.score-track { flex: 1; height: 5px; border-radius: 3px; background: var(--bg-tertiary); min-width: 44px; overflow: hidden; }
+.score-fill { height: 100%; border-radius: 3px; background: var(--teal); }
+.score-num { font-size: 14px; font-weight: 500; }
+
+/* PROGRESS BAR */
+.prog-bar { height: 6px; border-radius: 3px; background: var(--bg-tertiary); overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 3px; }
+
+/* METRIC CARD */
+.metric-card { background: var(--bg-secondary); border-radius: var(--radius); padding: 14px; }
+.metric-val { font-size: 24px; font-weight: 500; font-family: var(--font-serif); }
+.metric-lbl { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+
+/* QUARTER LANE */
+.q-lane { border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow); }
+.q-lane.overloaded { border-color: #F7C1C1; }
+.lane-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.lane-title { font-size: 14px; font-weight: 500; }
+.lane-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.lane-sub.warn { color: #A32D2D; }
+.lane-items { display: flex; flex-direction: column; gap: 8px; }
+.lane-item { background: var(--bg-secondary); border-radius: var(--radius-sm); padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; }
+.lane-item.dashed { border: 1px dashed var(--border); background: var(--bg-primary); }
+
+/* HEALTH */
+.health-circle { width: 80px; height: 80px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 3px solid; }
+.health-row { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border-light); }
+.health-row:last-child { border-bottom: none; }
+.h-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.dot-green { background: var(--green); }
+.dot-amber { background: var(--amber); }
+.dot-red { background: var(--red); }
+
+/* NARRATIVE */
+.narrative-block { background: var(--bg-secondary); border-radius: var(--radius); padding: 20px; font-size: 14px; line-height: 1.85; border-left: 3px solid var(--teal); }
+.narrative-block p + p { margin-top: 14px; }
+
+/* CHANGELOG */
+.cl-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-light); font-size: 13px; }
+.cl-row:last-child { border-bottom: none; }
+.cl-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); margin-top: 5px; flex-shrink: 0; }
+
+/* MONITOR */
+.signal-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border-light); font-size: 13px; }
+.signal-item:last-child { border-bottom: none; }
+
+/* OVERRIDE MODAL */
+.ovr-modal { display: none; background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-top: 10px; box-shadow: var(--shadow); }
+.ovr-btn { font-size: 11px; color: var(--teal); cursor: pointer; border: none; background: none; font-family: var(--font-sans); padding: 0; text-decoration: underline; margin-top: 8px; display: block; }
+select, textarea, input[type=number] { font-family: var(--font-sans); font-size: 12px; padding: 5px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-primary); color: var(--text-primary); width: 100%; margin-bottom: 8px; }
+
+/* FORM */
+.form-label { font-size: 11px; font-weight: 500; color: var(--text-secondary); margin-bottom: 5px; }
+.checkbox-list { display: flex; flex-direction: column; gap: 7px; }
+.checkbox-list label { font-size: 13px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+
+/* ANIMATIONS */
+.fade-in { animation: fadeIn 0.35s ease forwards; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(3px); } to { opacity:1; transform:translateY(0); } }
+.pulse { animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.tag-reveal { animation: tagReveal 0.4s ease forwards; opacity: 0; }
+@keyframes tagReveal { to { opacity:1; } }
+
+/* TAGGING BTN */
+.tag-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; background: var(--teal); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 13px; cursor: pointer; font-family: var(--font-sans); font-weight: 500; }
+.tag-btn:hover { background: var(--teal-dark); }
+.tag-btn:disabled { background: var(--teal-mid); cursor: not-allowed; }
+
+/* EXEC ONEPAGER */
+.quarter-pill { background: var(--bg-secondary); border-radius: var(--radius-sm); padding: 10px; text-align: center; }
+
+/* CUSTOM SCORE INPUT */
+.custom-score-input { width:54px; font-size:13px; padding:4px 6px; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg-primary); color:var(--text-primary); font-family:var(--font-sans); text-align:center; margin:0; }
+.custom-score-input:focus { outline:none; border-color:var(--teal); }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<!-- APP HEADER WITH HORIZONTAL STEPPER -->
+<div class="app-header">
+  <div class="app-header-top">
+    <div>
+      <div class="app-brand">AI-Powered Product Roadmap Planner</div>
+      <div class="app-title">Q1–Q4 2026 Roadmap</div>
+      <div class="app-sub">Digital Commerce Platform</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:11px;background:var(--teal-light);color:var(--teal-dark);padding:2px 8px;border-radius:4px;font-weight:500">AI-assisted</span>
+      <span style="font-size:12px;color:var(--text-secondary)" id="stageCounter">Stage 1 of 6</span>
+    </div>
+  </div>
+  <div class="stepper">
+    <div class="stepper-track"><div class="stepper-progress" id="stepperProgress" style="width:0%"></div></div>
+    <div class="step-item active" id="nav1" onclick="goStage(1)">
+      <div class="step-bubble"><span class="step-num">1</span></div>
+      <div class="step-label">Capture</div>
+      <div class="step-sublabel">Import &amp; context</div>
+    </div>
+    <div class="step-item" id="nav2" onclick="goStage(2)">
+      <div class="step-bubble"><span class="step-num">2</span></div>
+      <div class="step-label">Prioritize</div>
+      <div class="step-sublabel">Score &amp; group</div>
+    </div>
+    <div class="step-item" id="nav3" onclick="goStage(3)">
+      <div class="step-bubble"><span class="step-num">3</span></div>
+      <div class="step-label">Organize</div>
+      <div class="step-sublabel">Quarter planning</div>
+    </div>
+    <div class="step-item" id="nav4" onclick="goStage(4)">
+      <div class="step-bubble"><span class="step-num">4</span></div>
+      <div class="step-label">Validate</div>
+      <div class="step-sublabel">Health check</div>
+    </div>
+    <div class="step-item" id="nav5" onclick="goStage(5)">
+      <div class="step-bubble"><span class="step-num">5</span></div>
+      <div class="step-label">Communicate</div>
+      <div class="step-sublabel">Narrative &amp; exec</div>
+    </div>
+    <div class="step-item" id="nav6" onclick="goStage(6)">
+      <div class="step-bubble"><span class="step-num">6</span></div>
+      <div class="step-label">Monitor</div>
+      <div class="step-sublabel">Live tracking</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+        <span style="font-size:11px;color:var(--text-tertiary)">AI-Powered Product Roadmap Planner</span>
+        <span style="font-size:11px;color:var(--text-tertiary)">/</span>
+        <span style="font-size:11px;color:var(--teal);font-weight:500" id="topbarWs">Digital Commerce Platform</span>
+        <span style="font-size:11px;color:var(--text-tertiary)">/</span>
+        <span class="badge b-gray" style="font-size:10px" id="topbarFwBadge">RICE</span>
+      </div>
+      <div class="topbar-title" id="topbarTitle">Stage 1 — Capture &amp; Context</div>
+      <div class="topbar-sub" id="topbarSub">Import backlog items and define planning constraints</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" onclick="goStage(Math.max(1,currentStage-1))">← Back</button>
+      <button class="btn btn-primary" id="nextBtn" onclick="goStage(Math.min(6,currentStage+1))">Next stage →</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ======= STAGE 1 ======= -->
+    <div class="stage-panel active" id="stage1">
+
+      <!-- WORKSPACE HEADER ROW -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="font-size:13px;font-weight:500;color:var(--text-primary)">Workspaces</div>
+        </div>
+        <button class="tag-btn" onclick="showNewWsForm()" style="background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border);font-size:12px;padding:6px 12px">+ New workspace</button>
+      </div>
+
+      <!-- NEW WORKSPACE FORM -->
+      <div id="newWsForm" style="display:none;border:1px solid var(--teal-mid);border-radius:var(--radius);padding:16px;background:var(--teal-light);margin-bottom:14px">
+        <div style="font-size:13px;font-weight:500;color:var(--teal-dark);margin-bottom:12px">New workspace</div>
+        <div class="grid2" style="gap:10px;margin-bottom:12px">
+          <div>
+            <div class="form-label">Workspace name</div>
+            <input type="text" id="newWsName" placeholder="e.g. Mobile App 2026" style="font-size:13px;padding:7px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:#fff;color:var(--text-primary);font-family:var(--font-sans);width:100%">
+          </div>
+          <div>
+            <div class="form-label">Target audience</div>
+            <select id="newWsAudience" style="font-size:13px;padding:7px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:#fff;color:var(--text-primary);font-family:var(--font-sans);width:100%;margin:0">
+              <option>Executive / Leadership</option>
+              <option>Engineering team</option>
+              <option>Product managers</option>
+              <option>External stakeholders</option>
+              <option>Board / Investors</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn btn-sm" onclick="hideNewWsForm()">Cancel</button>
+          <button class="btn btn-primary btn-sm" onclick="createWorkspace()">Create workspace</button>
+        </div>
+      </div>
+
+      <!-- WORKSPACE CARDS -->
+      <div id="wsGrid" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+        <div id="wsCard_dcp" class="ws-card" onclick="selectWorkspace('wsCard_dcp','Digital Commerce Platform','Executive / Leadership')"
+          style="border:2px solid var(--teal);border-radius:var(--radius);padding:14px 16px;cursor:pointer;background:var(--teal-light);display:flex;align-items:center;gap:12px;min-width:280px">
+          <div style="font-size:20px">&#x1F6D2;</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:500;color:var(--teal-dark)">Digital Commerce Platform</div>
+            <div style="font-size:11px;color:var(--teal);margin-top:2px">Executive / Leadership &middot; Q1&ndash;Q4 2026</div>
+          </div>
+          <span class="badge b-teal" style="font-size:10px">Active</span>
+        </div>
+      </div>
+
+      <!-- DIVIDER -->
+      <div style="height:1px;background:var(--border);margin-bottom:14px"></div>
+
+      <!-- IMPORT SOURCES -->
+      <div class="section-label" style="margin-bottom:10px">Import epics &amp; features</div>
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <button onclick="handleImportEpicGen(this)" id="epicBtn" style="display:flex;align-items:center;gap:8px;padding:9px 16px;border:1.5px solid var(--teal-mid);border-radius:var(--radius-sm);background:var(--teal-light);color:var(--teal-dark);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans)">
+          <span>&#x2B21;</span> Import Epics
+        </button>
+        <button onclick="handleImportFeatureGen(this)" id="featBtn" style="display:flex;align-items:center;gap:8px;padding:9px 16px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans)">
+          <span>&#x25C8;</span> Import Features
+        </button>
+        <button onclick="handleImportCSV()" style="display:flex;align-items:center;gap:8px;padding:9px 16px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans)">
+          <span>&uarr;</span> Upload external file
+        </button>
+      </div>
+
+      <!-- IMPORT TOAST -->
+      <div id="importToast" style="display:none;background:var(--teal-light);border:0.5px solid var(--teal-mid);border-radius:var(--radius);padding:10px 14px;margin-bottom:12px;align-items:center;gap:10px">
+        <span style="color:var(--teal);font-size:16px">&#10003;</span>
+        <span id="importToastMsg" style="font-size:13px;color:var(--teal-dark)"></span>
+        <button onclick="document.getElementById('importToast').style.display='none'" style="margin-left:auto;border:none;background:none;color:var(--teal);cursor:pointer;font-size:16px">&times;</button>
+      </div>
+
+      <!-- PLANNING CONSTRAINTS + BUSINESS GOALS -->
+      <div class="grid2" style="margin-bottom:14px">
+        <div class="card">
+          <div class="section-label">Planning constraints</div>
+          <div class="form-label">Planning horizon</div>
+          <select><option>Q1&ndash;Q4 2026 (Full year)</option><option>Q1&ndash;Q2 2026</option><option>Q3&ndash;Q4 2026</option></select>
+          <div class="form-label" style="margin-top:8px">Team capacity (sprints / quarter)</div>
+          <input type="number" value="6">
+          <div class="form-label" style="margin-top:8px">Budget constraint (optional)</div>
+          <input type="text" placeholder="e.g. $2.4M annual budget" style="font-size:13px;padding:6px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-primary);color:var(--text-primary);font-family:var(--font-sans);width:100%">
+          <div class="form-label" style="margin-top:8px">Scoring framework</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:2px">
+            <label id="fw_rice" onclick="selectFramework('RICE')" style="display:flex;align-items:center;gap:7px;padding:7px 10px;border:1.5px solid var(--teal);border-radius:var(--radius-sm);cursor:pointer;background:var(--teal-light);transition:all 0.15s">
+              <div style="width:14px;height:14px;border-radius:50%;border:2px solid var(--teal);background:var(--teal);flex-shrink:0;display:flex;align-items:center;justify-content:center"><div style="width:5px;height:5px;border-radius:50%;background:#fff"></div></div>
+              <div><div style="font-size:12px;font-weight:500;color:var(--teal-dark)">RICE</div><div style="font-size:10px;color:var(--teal)">Recommended</div></div>
+            </label>
+            <label id="fw_ice" onclick="selectFramework('ICE')" style="display:flex;align-items:center;gap:7px;padding:7px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;background:var(--bg-secondary);transition:all 0.15s">
+              <div style="width:14px;height:14px;border-radius:50%;border:2px solid var(--border);flex-shrink:0"></div>
+              <div><div style="font-size:12px;font-weight:500;color:var(--text-primary)">ICE</div><div style="font-size:10px;color:var(--text-tertiary)">Impact · Confidence · Ease</div></div>
+            </label>
+            <label id="fw_moscow" onclick="selectFramework('MoSCoW')" style="display:flex;align-items:center;gap:7px;padding:7px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;background:var(--bg-secondary);transition:all 0.15s">
+              <div style="width:14px;height:14px;border-radius:50%;border:2px solid var(--border);flex-shrink:0"></div>
+              <div><div style="font-size:12px;font-weight:500;color:var(--text-primary)">MoSCoW</div><div style="font-size:10px;color:var(--text-tertiary)">Must / Should / Could / Won't</div></div>
+            </label>
+            <label id="fw_custom" onclick="selectFramework('Custom')" style="display:flex;align-items:center;gap:7px;padding:7px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;background:var(--bg-secondary);transition:all 0.15s">
+              <div style="width:14px;height:14px;border-radius:50%;border:2px solid var(--border);flex-shrink:0"></div>
+              <div><div style="font-size:12px;font-weight:500;color:var(--text-primary)">Custom</div><div style="font-size:10px;color:var(--text-tertiary)">Need · Value · Effort</div></div>
+            </label>
+          </div>
+          <!-- Custom formula hint -->
+          <div id="customHint" style="display:none;margin-top:8px;padding:8px 10px;background:var(--amber-light);border-radius:var(--radius-sm);font-size:12px;color:#854F0B">
+            Custom selected — enter Need, Value and Effort scores per epic in the table below. AI will rank by weighted score.
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-label">Business goals</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">One goal per line. AI uses these to score impact in Stage 2.</div>
+          <textarea id="businessGoalsInput" style="width:100%;height:118px;font-size:13px;padding:8px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-primary);color:var(--text-primary);font-family:var(--font-sans);resize:none;line-height:1.7;margin:0">Increase checkout conversion by 15%
+Reduce cart abandonment rate
+Achieve PCI-DSS Level 1 compliance
+Grow GMV 30% YoY</textarea>
+        </div>
+      </div>
+
+      <!-- BACKLOG TABLE -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div class="section-label" style="margin:0">Epics &mdash; 7 imported</div>
+          <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">Business goals used for impact scoring in Stage 2</div>
+        </div>
+        <button class="tag-btn" id="tagBtn" onclick="runAutoTag()">&#10022; Run AI auto-tagging</button>
+      </div>
+
+      <div class="ai-box" style="margin-bottom:12px">
+        <div class="ai-icon">&#10022;</div>
+        <div class="ai-text" id="s1AiMsg"><strong>AI:</strong> 7 epics detected from Digital Commerce Platform. Confirm constraints and business goals above, then run AI auto-tagging to classify each epic by effort, theme, customer impact, and risk.</div>
+      </div>
+
+      <div class="tbl-wrap">
+        <table id="s1Table">
+          <thead>
+            <tr id="s1TableHead">
+              <th style="width:24%">Epic</th>
+              <th>Source</th>
+              <th id="s1ColEffort">Effort</th>
+              <th id="s1ColTheme">Theme</th>
+              <th id="s1ColImpact">Customer impact</th>
+              <th id="s1ColRisk">Risk</th>
+            </tr>
+          </thead>
+          <tbody id="s1Tbody">
+            <tr><td style="font-weight:500">One-click checkout</td><td><span class="badge b-blue">Customer feedback</span></td><td id="s1e1">&mdash;</td><td id="s1t1">&mdash;</td><td id="s1c1">&mdash;</td><td id="s1r1">&mdash;</td></tr>
+            <tr><td style="font-weight:500">AI product recommendations</td><td><span class="badge b-purple">CEO goal</span></td><td id="s1e2">&mdash;</td><td id="s1t2">&mdash;</td><td id="s1c2">&mdash;</td><td id="s1r2">&mdash;</td></tr>
+            <tr><td style="font-weight:500">Real-time inventory sync</td><td><span class="badge b-red">Ops escalation</span></td><td id="s1e3">&mdash;</td><td id="s1t3">&mdash;</td><td id="s1c3">&mdash;</td><td id="s1r3">&mdash;</td></tr>
+            <tr><td style="font-weight:500">Abandoned cart recovery</td><td><span class="badge b-blue">Marketing</span></td><td id="s1e4">&mdash;</td><td id="s1t4">&mdash;</td><td id="s1c4">&mdash;</td><td id="s1r4">&mdash;</td></tr>
+            <tr><td style="font-weight:500">Seller analytics dashboard</td><td><span class="badge b-gray">Enterprise</span></td><td id="s1e5">&mdash;</td><td id="s1t5">&mdash;</td><td id="s1c5">&mdash;</td><td id="s1r5">&mdash;</td></tr>
+            <tr><td style="font-weight:500">Mobile app performance</td><td><span class="badge b-amber">Support trend</span></td><td id="s1e6">&mdash;</td><td id="s1t6">&mdash;</td><td id="s1c6">&mdash;</td><td id="s1r6">&mdash;</td></tr>
+            <tr><td style="font-weight:500">PCI-DSS payment tokenization</td><td><span class="badge b-red">Compliance mandate</span></td><td id="s1e7">&mdash;</td><td id="s1t7">&mdash;</td><td id="s1c7">&mdash;</td><td id="s1r7">&mdash;</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div><!-- end stage1 -->
+
+    <!-- ======= STAGE 2 ======= -->
+    <div class="stage-panel" id="stage2">
+      <div class="ai-box">
+        <div class="ai-icon">✦</div>
+        <div class="ai-text" id="s2AiMsg"><strong>AI:</strong> Scored all 7 epics using <strong>RICE</strong> framework against your business goals, capacity (6 sprints/quarter), and ROI signals. 1 dependency chain detected. Click any row to expand full reasoning. Override any score — all overrides are logged.</div>
+      </div>
+
+      <!-- FRAMEWORK INDICATOR -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="section-label" style="margin:0">Scoring framework</div>
+          <span id="s2FwBadge" class="badge b-teal">RICE</span>
+          <span style="font-size:11px;color:var(--text-tertiary)">· Change in Stage 1</span>
+        </div>
+        <div class="grid2" style="gap:8px;margin:0">
+          <div class="metric-card" style="padding:10px 14px"><div class="metric-lbl">Epics scored</div><div class="metric-val">7</div></div>
+          <div class="metric-card" style="padding:10px 14px"><div class="metric-lbl">Theme clusters</div><div class="metric-val">5</div></div>
+        </div>
+      </div>
+
+      <!-- RICE VIEW (default) -->
+      <div id="s2ViewRICE">
+        <div class="tbl-wrap" style="margin-bottom:12px">
+          <table>
+            <thead><tr><th style="width:22%">Epic</th><th>Source</th><th>Effort</th><th>Theme</th><th>Impact</th><th>Risk</th><th>RICE</th><th>Priority</th><th style="width:24px"></th></tr></thead>
+            <tbody id="s2tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ICE VIEW -->
+      <div id="s2ViewICE" style="display:none">
+        <div class="tbl-wrap" style="margin-bottom:12px">
+          <table>
+            <thead><tr><th style="width:22%">Epic</th><th>Source</th><th>Impact</th><th>Confidence</th><th>Ease</th><th>ICE Score</th><th>Priority</th><th style="width:24px"></th></tr></thead>
+            <tbody id="s2tbodyICE"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- MoSCoW VIEW -->
+      <div id="s2ViewMoSCoW" style="display:none">
+        <div class="tbl-wrap" style="margin-bottom:12px">
+          <table>
+            <thead><tr><th style="width:22%">Epic</th><th>Source</th><th>Category</th><th>Customer impact</th><th>Deferral risk</th><th>Effort</th><th>Priority</th><th style="width:24px"></th></tr></thead>
+            <tbody id="s2tbodyMoSCoW"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CUSTOM VIEW -->
+      <div id="s2ViewCustom" style="display:none">
+        <div style="padding:10px 14px;background:var(--amber-light);border-radius:var(--radius-sm);font-size:12px;color:#854F0B;margin-bottom:10px">Custom scoring — values from Stage 1. Weighted score = (Need × 0.4) + (Value × 0.4) + (Effort × 0.2).</div>
+        <div class="tbl-wrap" style="margin-bottom:12px">
+          <table>
+            <thead><tr><th style="width:22%">Epic</th><th>Source</th><th>Need</th><th>Value</th><th>Effort</th><th>Weighted score</th><th>Priority</th><th style="width:24px"></th></tr></thead>
+            <tbody id="s2tbodyCustom"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TRADE-OFF (shown for RICE + ICE + Custom) -->
+      <div id="s2Tradeoff" class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0">
+        <div style="display:flex;gap:8px;align-items:flex-start">
+          <span style="font-size:16px;color:var(--amber);flex-shrink:0">⚠</span>
+          <div>
+            <div style="font-size:13px;font-weight:500;margin-bottom:4px">AI trade-off detected</div>
+            <div style="font-size:13px;color:var(--text-secondary);line-height:1.6">Abandoned cart recovery (P1) depends on One-click checkout being live first. Recovery emails lose effectiveness if checkout friction remains high. If checkout slips past Q1, cart recovery must move from Q2 → Q3. This dependency will be flagged in Stage 4 Validate.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= STAGE 3 ======= -->
+    <div class="stage-panel" id="stage3">
+      <div class="ai-box" id="s3AiMsg">
+        <div class="ai-icon">✦</div>
+        <div class="ai-text"><strong>AI:</strong> Organising roadmap based on your framework and PM decisions from Stage 2. PM overrides take precedence over AI scores. Capacity warnings are advisory — you are the decision maker.</div>
+      </div>
+
+      <!-- PM DECISIONS BANNER -->
+      <div id="s3DecisionBar" style="display:none;margin-bottom:14px;padding:10px 14px;background:var(--purple-light);border:0.5px solid var(--purple);border-radius:var(--radius);display:flex;align-items:center;gap:10px">
+        <span style="font-size:15px;color:var(--purple)">👤</span>
+        <div style="flex:1;font-size:13px;color:var(--purple)"><strong>PM decisions applied:</strong> <span id="s3DecisionCount">0</span> override(s) from Stage 2 reflected in this roadmap.</div>
+      </div>
+
+      <!-- SWIMLANE container -->
+      <div style="overflow-x:auto;margin-bottom:14px">
+        <div id="s3Swimlane" style="display:grid;grid-template-columns:repeat(4,minmax(200px,1fr));gap:0;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;min-width:700px"></div>
+      </div>
+
+      <!-- AUDIT TRAIL -->
+      <div id="s3AuditSection" style="display:none;margin-bottom:14px">
+        <div class="section-label" style="margin-bottom:8px">PM override audit trail</div>
+        <div class="card" style="padding:12px 16px" id="s3AuditLog"></div>
+      </div>
+
+      <!-- PUSH TO JIRA -->
+      <div style="border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;background:var(--bg-secondary)">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:32px;height:32px;background:#0052CC;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="18" height="18" viewBox="0 0 32 32" fill="none"><path d="M15.999 0C7.163 0 0 7.163 0 16s7.163 16 16 16 16-7.163 16-16S24.836 0 15.999 0zm7.847 17.184l-7.374 7.374a.652.652 0 01-.922 0l-7.374-7.374a.652.652 0 010-.922l3.45-3.45a.652.652 0 01.922 0l3.463 3.464 3.463-3.464a.652.652 0 01.922 0l3.45 3.45a.652.652 0 010 .922z" fill="#fff"/></svg>
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--text-primary)">Push roadmap to Jira</div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:1px">Creates epics per quarter · PM-decided priorities applied · sets target versions</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-shrink:0">
+          <button class="btn" style="font-size:12px" onclick="showJiraPreview()">Preview</button>
+          <button class="btn btn-primary" style="font-size:12px;background:#0052CC;border-color:#0052CC" onclick="handleJiraPush()">Push to Jira →</button>
+        </div>
+      </div>
+      <div id="jiraPreview" style="display:none;margin-top:12px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+        <div style="background:#0052CC;padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
+          <div style="font-size:13px;font-weight:500;color:#fff">Jira export preview</div>
+          <button onclick="document.getElementById('jiraPreview').style.display='none'" style="border:none;background:none;color:#fff;cursor:pointer;font-size:16px">×</button>
+        </div>
+        <div id="jiraPreviewBody" style="padding:14px;background:var(--bg-primary);font-size:12px;color:var(--text-secondary)">4 epics · 7 issues will be created in project DCP-2026</div>
+      </div>
+      <div id="jiraSuccess" style="display:none;margin-top:12px;background:var(--teal-light);border:0.5px solid var(--teal-mid);border-radius:var(--radius);padding:12px 16px;align-items:center;gap:10px">
+        <span style="color:var(--teal);font-size:18px">✓</span>
+        <div><div style="font-size:13px;font-weight:500;color:var(--teal-dark)">Roadmap pushed to Jira successfully</div>
+        <div style="font-size:12px;color:var(--teal);margin-top:2px">4 epics and 7 issues created in project DCP-2026 · View in Jira →</div></div>
+      </div>
+    </div>
+
+    <!-- ======= STAGE 4 ======= -->
+    <div class="stage-panel" id="stage4">
+      <div class="ai-box">
+        <div class="ai-icon">✦</div>
+        <div class="ai-text"><strong>AI:</strong> Health check complete. Overall score 72/100 — amber. 1 capacity issue and 1 dependency risk need resolution before this roadmap is stakeholder-ready. All 3 business goals are mapped.</div>
+      </div>
+      <div class="grid3" style="margin-bottom:14px">
+        <div class="metric-card" style="text-align:center">
+          <div class="metric-lbl">Overall health</div>
+          <div style="display:flex;justify-content:center;margin-top:8px">
+            <div class="health-circle" style="border-color:var(--amber)">
+              <div style="font-size:22px;font-weight:500;font-family:var(--font-serif);color:var(--amber)">72</div>
+              <div style="font-size:11px;color:var(--amber)">/100</div>
+            </div>
+          </div>
+          <div style="margin-top:8px"><span class="badge b-amber">Needs attention</span></div>
+        </div>
+        <div class="metric-card" style="text-align:center">
+          <div class="metric-lbl">Issues found</div>
+          <div class="metric-val" style="color:var(--red);margin-top:8px">2</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">1 capacity · 1 dependency</div>
+        </div>
+        <div class="metric-card" style="text-align:center">
+          <div class="metric-lbl">Goal coverage</div>
+          <div class="metric-val" style="color:var(--green);margin-top:8px">3/3</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">All business goals mapped</div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="section-label">Dependency scan</div>
+        <div class="health-row">
+          <div class="h-dot dot-red"></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:500">Abandoned cart recovery depends on One-click checkout</div><div style="font-size:12px;color:var(--text-secondary);margin-top:2px">Both are in Q1/Q2. If checkout slips, cart recovery cannot launch as planned. Risk: HIGH.</div></div>
+          <button class="btn btn-sm" onclick="showOvrModal()">Resolve</button>
+        </div>
+        <div class="health-row">
+          <div class="h-dot dot-green"></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:500">PCI-DSS tokenization has no blockers</div><div style="font-size:12px;color:var(--text-secondary);margin-top:2px">Compliance work is self-contained in Q1. No upstream dependencies detected.</div></div>
+          <span class="badge b-teal">Clear</span>
+        </div>
+        <div class="health-row">
+          <div class="h-dot dot-green"></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:500">AI recommendations safely isolated in Q4</div><div style="font-size:12px;color:var(--text-secondary);margin-top:2px">No Q1–Q3 work depends on this. Safe to move earlier or later without cascade.</div></div>
+          <span class="badge b-teal">Clear</span>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="section-label">Capacity check</div>
+        <div class="health-row">
+          <div class="h-dot dot-red"></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:500">Q2 over capacity — 7.5 / 6 sprints</div><div style="font-size:12px;color:var(--text-secondary);margin-top:2px">Recommendation: move Mobile app performance to Q3 which has 3.5 spare sprints.</div></div>
+          <button class="btn btn-sm" onclick="showOvrModal()">Accept fix</button>
+        </div>
+        <div class="health-row">
+          <div class="h-dot dot-green"></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:500">Q1, Q3, Q4 within capacity</div><div style="font-size:12px;color:var(--text-secondary);margin-top:2px">Healthy loading. Q3 has buffer for scope additions if needed.</div></div>
+          <span class="badge b-teal">Clear</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-label">Goal alignment</div>
+        <div class="health-row">
+          <div class="h-dot dot-green"></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:500">Increase checkout conversion</div><div style="font-size:12px;color:var(--text-secondary);margin-top:2px">Covered by One-click checkout (Q1) + Abandoned cart recovery (Q2)</div></div>
+          <span class="badge b-teal">Mapped</span>
+        </div>
+        <div class="health-row">
+          <div class="h-dot dot-green"></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:500">Achieve PCI-DSS Level 1 compliance</div><div style="font-size:12px;color:var(--text-secondary);margin-top:2px">Covered by payment tokenization (Q1, P0)</div></div>
+          <span class="badge b-teal">Mapped</span>
+        </div>
+        <div class="health-row">
+          <div class="h-dot dot-amber"></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:500">Reduce cart abandonment</div><div style="font-size:12px;color:var(--text-secondary);margin-top:2px">Covered in Q2 but contingent on Q1 checkout delivery — see dependency flag.</div></div>
+          <span class="badge b-amber">At risk</span>
+        </div>
+      </div>
+      <!-- Override modal -->
+      <div id="ovrModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius);padding:20px;width:320px;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,0.12)">
+        <div style="font-size:14px;font-weight:500;margin-bottom:8px">Log resolution reason</div>
+        <p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">This builds your audit trail for stakeholders.</p>
+        <select><option>Executive priority</option><option>Customer commitment</option><option>Dependency unblocks</option><option>Strategic re-alignment</option><option>Other</option></select>
+        <textarea style="height:72px;resize:none" placeholder="Add context..."></textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn btn-sm" onclick="hideOvrModal()">Cancel</button>
+          <button class="btn btn-primary btn-sm" onclick="hideOvrModal()">Save</button>
+        </div>
+      </div>
+      <div id="ovrOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.25);z-index:99" onclick="hideOvrModal()"></div>
+    </div>
+
+    <!-- ======= STAGE 5 ======= -->
+    <div class="stage-panel" id="stage5">
+      <div class="ai-box">
+        <div class="ai-icon">✦</div>
+        <div class="ai-text"><strong>AI:</strong> Generating stakeholder narrative grounded in your RICE scores, business goals, and dependency data. Every claim is traceable back to a scoring decision — not generated prose.</div>
+      </div>
+      <div style="margin-bottom:16px">
+        <div class="section-label">Stakeholder narrative</div>
+        <div class="narrative-block">
+          <p><strong>Q1 — Trust before growth.</strong> The roadmap opens with our most non-negotiable item: PCI-DSS payment tokenization. This is not a feature — it is a legal prerequisite. At $800K in risk avoidance and a 95% confidence score, it anchors Q1 unconditionally and clears the compliance gate for everything downstream. Alongside it, One-click checkout lands as our highest-conviction conversion driver — RICE score 872, backed by dual-source validation (customer feedback + sales) and a direct $2.1M ROI signal tied to the 15% conversion goal.</p>
+          <p><strong>Q2 — Capture the intent we are creating.</strong> With a trusted, frictionless checkout live, Q2 activates retention. Abandoned cart recovery (RICE 756) is the highest-efficiency item in the backlog — $600K ROI at just 1 sprint of effort. It depends on checkout being live first: recovery emails lose effectiveness if the checkout experience is still friction-heavy. Real-time inventory sync ships in parallel, eliminating the top ops escalation — stockout complaints that cost $400K per year in support overhead.</p>
+          <p><strong>Q3 — Platform stability at scale.</strong> Mobile app performance moves here deliberately. At 2.5 sprints it is a significant investment, but it follows inventory and infrastructure work that must be stable before we refactor the native layer. The $500K churn risk signal is real and this quarter has buffer for scope that will inevitably emerge.</p>
+          <p><strong>Q4 — Strategic bet.</strong> AI product recommendations and Seller analytics close the year. Both are growth investments, not fixes. Placing them in Q4 is intentional: we need the platform to be reliable, compliant, and conversion-optimised before we layer intelligence on top. AI recommendations carry a $1.2M GMV upside and CEO sponsorship — Q4 gives us the stable foundation to execute it well.</p>
+        </div>
+      </div>
+      <div style="margin-bottom:16px">
+        <div class="section-label">Exec one-pager</div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+            <div>
+              <div style="font-size:15px;font-weight:500;font-family:var(--font-serif)">Digital Commerce Platform — 2026 Roadmap</div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-top:2px">Prepared by AI-Powered Product Roadmap Planner · June 2026 · Confidential</div>
+            </div>
+            <span class="badge b-teal">AI-generated</span>
+          </div>
+          <div class="grid2" style="margin-bottom:14px">
+            <div><div style="font-size:12px;color:var(--text-secondary);margin-bottom:3px">Strategic arc</div><div style="font-size:13px">Compliance → Conversion → Reliability → Growth</div></div>
+            <div><div style="font-size:12px;color:var(--text-secondary);margin-bottom:3px">Capacity</div><div style="font-size:13px">6 sprints/quarter · 4 engineers · 7 features</div></div>
+          </div>
+          <div class="grid4">
+            <div class="quarter-pill"><div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px">Q1</div><div style="font-size:12px;font-weight:500">PCI-DSS</div><div style="font-size:12px;font-weight:500">+ Checkout</div></div>
+            <div class="quarter-pill"><div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px">Q2</div><div style="font-size:12px;font-weight:500">Cart recovery</div><div style="font-size:12px;font-weight:500">+ Inventory</div></div>
+            <div class="quarter-pill"><div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px">Q3</div><div style="font-size:12px;font-weight:500">Mobile perf</div><div style="font-size:12px;font-weight:500">overhaul</div></div>
+            <div class="quarter-pill"><div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px">Q4</div><div style="font-size:12px;font-weight:500">AI recs</div><div style="font-size:12px;font-weight:500">+ Seller dash</div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Living changelog</div>
+        <div class="card" style="padding:14px 16px">
+          <div class="cl-row"><div class="cl-dot"></div><div><div style="font-size:13px;font-weight:500">Mobile app performance moved Q2 → Q3</div><div style="font-size:12px;color:var(--text-secondary);margin-top:2px">Reason: Q2 over capacity (7.5/6 sprints). AI flagged overload. Fix accepted.</div><div style="font-size:11px;color:var(--text-tertiary);margin-top:2px">Today · 9:41 AM</div></div></div>
+          <div class="cl-row"><div class="cl-dot"></div><div><div style="font-size:13px;font-weight:500">PCI-DSS tokenization elevated to P0</div><div style="font-size:12px;color:var(--text-secondary);margin-top:2px">Reason: Compliance mandate — non-negotiable Q1 anchor. RICE score 945.</div><div style="font-size:11px;color:var(--text-tertiary);margin-top:2px">Today · 9:38 AM</div></div></div>
+          <div class="cl-row"><div class="cl-dot"></div><div><div style="font-size:13px;font-weight:500">AI recommendations moved to Q4</div><div style="font-size:12px;color:var(--text-secondary);margin-top:2px">Reason: Platform must be stable before intelligence layer. Strategic override logged.</div><div style="font-size:11px;color:var(--text-tertiary);margin-top:2px">Today · 9:35 AM</div></div></div>
+          <div class="cl-row"><div class="cl-dot" style="background:var(--text-tertiary)"></div><div><div style="font-size:13px;font-weight:500">Roadmap initialized — 7 items imported</div><div style="font-size:12px;color:var(--text-secondary);margin-top:2px">AI auto-tagging complete · RICE scoring applied · 5 theme clusters identified</div><div style="font-size:11px;color:var(--text-tertiary);margin-top:2px">Today · 9:30 AM</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= STAGE 6 ======= -->
+    <div class="stage-panel" id="stage6">
+      <div class="ai-box">
+        <div class="ai-icon">✦</div>
+        <div class="ai-text"><strong>AI:</strong> Monitoring 7 active features across Q1–Q4. 1 execution delay detected in Q1. 2 new customer signals surfaced this week that may affect Q2 and Q4 scope.</div>
+      </div>
+      <div class="grid3" style="margin-bottom:14px">
+        <div class="metric-card"><div class="metric-lbl">On track</div><div class="metric-val" style="color:var(--green)">5</div></div>
+        <div class="metric-card"><div class="metric-lbl">At risk</div><div class="metric-val" style="color:var(--amber)">1</div></div>
+        <div class="metric-card"><div class="metric-lbl">New signals</div><div class="metric-val" style="color:var(--purple)">2</div></div>
+      </div>
+      <div class="grid2" style="margin-bottom:14px">
+        <div>
+          <div class="section-label">Delivery tracker — Q1</div>
+          <div class="card">
+            <div class="signal-item">
+              <span style="font-size:16px;color:var(--green);flex-shrink:0;margin-top:1px">✓</span>
+              <div style="flex:1"><div style="font-size:13px;font-weight:500">PCI-DSS tokenization</div><div style="font-size:12px;color:var(--text-secondary)">Sprint 2 of 3 · On track</div><div class="prog-bar" style="margin-top:6px"><div class="prog-fill" style="width:66%;background:var(--teal)"></div></div></div>
+            </div>
+            <div class="signal-item">
+              <span style="font-size:16px;color:var(--amber);flex-shrink:0;margin-top:1px">⚠</span>
+              <div style="flex:1"><div style="font-size:13px;font-weight:500">One-click checkout</div><div style="font-size:12px;color:#A32D2D">Sprint 1 of 1.5 · 3-day delay flagged</div><div class="prog-bar" style="margin-top:6px"><div class="prog-fill" style="width:40%;background:var(--amber)"></div></div></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="section-label">New customer signals</div>
+          <div class="card">
+            <div class="signal-item">
+              <span style="font-size:16px;color:var(--purple);flex-shrink:0;margin-top:1px">↑</span>
+              <div><div style="font-size:13px;font-weight:500">14 new reviews mention slow checkout on mobile</div><div style="font-size:12px;color:var(--text-secondary)">May reinforce Mobile perf priority in Q3</div><span class="badge b-purple" style="margin-top:4px">Affects Q3</span></div>
+            </div>
+            <div class="signal-item">
+              <span style="font-size:16px;color:var(--teal);flex-shrink:0;margin-top:1px">→</span>
+              <div><div style="font-size:13px;font-weight:500">Competitor launched AI recommendations</div><div style="font-size:12px;color:var(--text-secondary)">May warrant pulling Q4 AI recs item forward</div><span class="badge b-teal" style="margin-top:4px">Watch Q4</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0">
+        <div style="display:flex;gap:8px;align-items:flex-start">
+          <span style="font-size:16px;color:var(--teal);flex-shrink:0;margin-top:1px">✦</span>
+          <div>
+            <div style="font-size:13px;font-weight:500;margin-bottom:4px">AI recommendation</div>
+            <div style="font-size:13px;color:var(--text-secondary);line-height:1.6">One-click checkout has a 3-day delay. If it slips further, abandoned cart recovery in Q2 is at risk per the detected dependency. Consider allocating 0.5 sprint buffer from Q2 inventory sync to protect the dependency chain.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end content -->
+
+  <div class="footer-nav">
+    <div class="footer-hint" id="footerHint">Click "Run AI auto-tagging" to begin</div>
+    <div class="footer-dots">
+      <div class="f-dot active" id="dot1" onclick="goStage(1)"></div>
+      <div class="f-dot" id="dot2" onclick="goStage(2)"></div>
+      <div class="f-dot" id="dot3" onclick="goStage(3)"></div>
+      <div class="f-dot" id="dot4" onclick="goStage(4)"></div>
+      <div class="f-dot" id="dot5" onclick="goStage(5)"></div>
+      <div class="f-dot" id="dot6" onclick="goStage(6)"></div>
+    </div>
+    <div style="font-size:12px;color:var(--text-secondary)" id="stageCounter">Stage 1 of 6</div>
+  </div>
+</div><!-- end main -->
+
+</div><!-- end app -->
+
+<script>
+// ---- PRE-LOADED CLAUDE SCORES (from live API session) ----
+const SCORES = [
+  {id:1,name:"One-click checkout",source:"Customer feedback",srcCls:"b-blue",effort:"Medium",theme:"Checkout Conversion",customer_impact:"Critical",risk:"Low",rice_score:872,reach:9,reach_note:"Impacts every buyer on the platform — highest reach of any item.",impact:5,impact_note:"Directly tied to 15% checkout conversion goal with $2.1M ROI.",confidence:90,confidence_note:"Dual-source validation: customer feedback + sales.",effort_sprints:1.5,effort_note:"Well-scoped with existing payment infrastructure.",priority:"P1 — High",reasoning:"One-click checkout is the highest-ROI item at $2.1M uplift and directly addresses the primary business goal. Dual-source validation gives high confidence. At 1.5 sprints it is efficient relative to its impact and should anchor Q1.",dependency:null},
+  {id:2,name:"AI product recommendations",source:"CEO goal",srcCls:"b-purple",effort:"High",theme:"Growth Intelligence",customer_impact:"High",risk:"Medium",rice_score:581,reach:7,reach_note:"Affects all buyers but benefit is indirect — improves discovery, not checkout.",impact:4,impact_note:"$1.2M GMV uplift meaningful but realised over a longer horizon.",confidence:62,confidence_note:"CEO goal adds weight but no customer validation data — confidence moderate.",effort_sprints:3,effort_note:"ML model, data pipeline, and UI integration make this the heaviest item.",priority:"P3 — Strategic",reasoning:"AI recommendations carry strong long-term GMV potential and CEO sponsorship, but at 3 sprints consume half a quarter. Platform must be reliable before an intelligence layer adds value — Q4 is the right sequencing.",dependency:"Should be scheduled after One-click checkout and inventory sync are stable to ensure recommendation data quality."},
+  {id:3,name:"Real-time inventory sync",source:"Ops escalation",srcCls:"b-red",effort:"High",theme:"Platform Reliability",customer_impact:"High",risk:"High",rice_score:694,reach:8,reach_note:"Every buyer browsing the catalogue is affected by inaccurate stock data.",impact:4,impact_note:"Resolves top ops escalation and eliminates $400K/yr in support costs.",confidence:75,confidence_note:"Ops escalation provides strong signal; solution complexity introduces delivery risk.",effort_sprints:3,effort_note:"Real-time sync requires event-driven architecture changes across surfaces.",priority:"P2 — Medium",reasoning:"Inventory sync addresses a high-visibility operational failure and saves $400K annually. At 3 sprints it is capacity-heavy and should follow compliance and checkout in Q2. High risk reflects integration complexity.",dependency:"No hard dependency but benefits from checkout infrastructure being stable first."},
+  {id:4,name:"Abandoned cart recovery",source:"Marketing",srcCls:"b-blue",effort:"Low",theme:"Retention",customer_impact:"High",risk:"Low",rice_score:756,reach:8,reach_note:"Targets all buyers who abandon — a large, well-defined segment.",impact:4,impact_note:"$600K incremental revenue at low engineering investment — high efficiency.",confidence:80,confidence_note:"Marketing request backed by industry benchmarks — proven retention lever.",effort_sprints:1,effort_note:"Email and push triggers built on existing notification infrastructure.",priority:"P1 — High",reasoning:"Highest-efficiency item in the backlog — $600K ROI at just 1 sprint. Directly addresses the cart abandonment business goal. Depends on checkout being optimised first; recovery emails lose effectiveness if checkout friction remains.",dependency:"Depends on One-click checkout being live — recovery effectiveness significantly reduced if checkout friction remains high."},
+  {id:5,name:"Seller analytics dashboard",source:"Enterprise",srcCls:"b-gray",effort:"Medium",theme:"Monetization",customer_impact:"Medium",risk:"Low",rice_score:412,reach:4,reach_note:"Affects only the seller segment — smaller but commercially important cohort.",impact:3,impact_note:"Supports seller self-serve tier goal but no direct consumer revenue signal.",confidence:55,confidence_note:"Enterprise requests credible but limited volume — no quantified ROI signal.",effort_sprints:2,effort_note:"Dashboard requires data aggregation pipeline work.",priority:"P3 — Low",reasoning:"Seller analytics supports the self-serve tier objective but scores lower due to narrower reach and no quantified ROI. At 2 sprints in a capacity-constrained year, best placed in Q4 alongside other strategic investments.",dependency:null},
+  {id:6,name:"Mobile app performance overhaul",source:"Support trend",srcCls:"b-amber",effort:"High",theme:"Platform Stability",customer_impact:"High",risk:"Medium",rice_score:643,reach:7,reach_note:"All mobile buyers affected — likely 50–60% of traffic on a modern commerce platform.",impact:4,impact_note:"Crash reports drive churn; $500K churn risk signal is commercially significant.",confidence:72,confidence_note:"Support ticket trend is reliable; delivery risk from native app complexity.",effort_sprints:2.5,effort_note:"iOS and Android overhaul requires platform-specific work and QA cycles.",priority:"P2 — Medium",reasoning:"Mobile performance is a trust and retention issue — crash reports are the clearest pain signal. $500K churn risk is real. At 2.5 sprints and with Q2 overloaded, moving to Q3 allows focus on compliance and conversion without sacrificing this investment.",dependency:"Should follow inventory sync to avoid compounding platform instability during concurrent infrastructure changes."},
+  {id:7,name:"PCI-DSS payment tokenization",source:"Compliance mandate",srcCls:"b-red",effort:"Medium",theme:"Compliance Security",customer_impact:"Critical",risk:"Critical",rice_score:945,reach:10,reach_note:"Payment tokenization affects every single transaction — 100% reach.",impact:5,impact_note:"PCI-DSS Level 1 compliance is non-negotiable — failure risks $800K in fines and platform shutdown.",confidence:95,confidence_note:"Compliance mandate with quantified risk avoidance — no ambiguity in priority.",effort_sprints:3,effort_note:"Tokenization requires payment gateway integration, encryption layer, and security audit.",priority:"P0 — Must have",reasoning:"The only P0 item — a legal mandate, not a feature choice. At $800K risk avoidance and platform-level consequences for non-compliance, this must anchor Q1. Confidence 95%, highest of any item. All Q1 work scoped around this 3-sprint footprint.",dependency:null}
+];
+
+const effortCls={Low:"b-teal",Medium:"b-amber",High:"b-red","Very High":"b-red"};
+const riskCls={Low:"b-teal",Medium:"b-amber",High:"b-red",Critical:"b-red"};
+const priCls={"P0 — Must have":"b-red","P1 — High":"b-teal","P2 — Medium":"b-amber","P3 — Strategic":"b-blue","P3 — Low":"b-gray"};
+
+// ---- STAGE 1 AUTO-TAG (reveal from SCORES data) ----
+const s1TagData = [
+  ["s1e1","s1t1","s1c1","s1r1",0],
+  ["s1e2","s1t2","s1c2","s1r2",1],
+  ["s1e3","s1t3","s1c3","s1r3",2],
+  ["s1e4","s1t4","s1c4","s1r4",3],
+  ["s1e5","s1t5","s1c5","s1r5",4],
+  ["s1e6","s1t6","s1c6","s1r6",5],
+  ["s1e7","s1t7","s1c7","s1r7",6]
+];
+
+// dropdown helper
+function dropdownSelect(id, options, defaultVal, colorFn){
+  const sel = `<select onchange="updateBadgeColor(this)" style="font-size:12px;padding:3px 6px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-primary);color:var(--text-primary);font-family:var(--font-sans);cursor:pointer">
+    ${options.map(o=>`<option${o===defaultVal?' selected':''}>${o}</option>`).join('')}
+  </select>`;
+  return sel;
+}
+function updateBadgeColor(sel){ /* visual hook for future badge coloring */ }
+
+const effortOptions = ['Low','Medium','High'];
+const impactOptions = ['Critical','High','Medium','Low'];
+const riskOptions   = ['Critical','High','Medium','Low'];
+
+// default pre-filled values for custom dropdowns per item
+const customDefaults = [
+  {effort:'Medium', impact:'Critical', risk:'Low'},
+  {effort:'High',   impact:'High',     risk:'Medium'},
+  {effort:'High',   impact:'High',     risk:'High'},
+  {effort:'Low',    impact:'High',     risk:'Low'},
+  {effort:'Medium', impact:'Medium',   risk:'Low'},
+  {effort:'High',   impact:'High',     risk:'Medium'},
+  {effort:'Medium', impact:'Critical', risk:'Critical'}
+];
+
+function makeDropdown(options, defaultVal){
+  return `<select style="font-size:12px;padding:4px 7px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-primary);color:var(--text-primary);font-family:var(--font-sans)">
+    ${options.map(o=>`<option${o===defaultVal?' selected':''}>${o}</option>`).join('')}
+  </select>`;
+}
+
+function runAutoTag(){
+  const btn = document.getElementById("tagBtn");
+  btn.disabled = true;
+
+  if(activeFramework === 'Custom'){
+    // Custom: swap columns and populate dropdowns
+    btn.textContent = "Setting up…";
+    document.getElementById('s1ColTheme').textContent = 'Value';
+    document.getElementById('s1ColEffort').textContent = 'Effort';
+    document.getElementById('s1ColImpact').textContent = 'Customer Impact';
+    document.getElementById('s1ColRisk').textContent = 'Risk';
+    document.getElementById('s1AiMsg').innerHTML = '<strong>AI:</strong> Custom scoring active. Select Effort, Customer Impact and Risk values for each epic manually. These will feed the weighted score in Stage 2.';
+
+    let i = 0;
+    const rows = document.querySelectorAll('#s1Tbody tr');
+    const iv = setInterval(()=>{
+      if(i >= s1TagData.length){ clearInterval(iv); btn.textContent = "✓ Ready"; btn.disabled = false; return; }
+      const [eId,tId,cId,rId,si] = s1TagData[i];
+      const def = customDefaults[si];
+      setTimeout(()=>{
+        // Effort dropdown
+        document.getElementById(eId).innerHTML = makeDropdown(effortOptions, def.effort);
+        // Theme col repurposed as Value — static badge (PM sets qualitative value)
+        document.getElementById(tId).innerHTML = makeDropdown(['High','Medium','Low'], def.effort==='Low'?'High':def.effort==='High'?'Medium':'High');
+        // Customer Impact dropdown
+        document.getElementById(cId).innerHTML = makeDropdown(impactOptions, def.impact);
+        // Risk dropdown
+        document.getElementById(rId).innerHTML = makeDropdown(riskOptions, def.risk);
+      }, 0);
+      i++;
+    }, 280);
+
+  } else {
+    // RICE / ICE / MoSCoW — restore default AI columns
+    btn.textContent = "Analyzing…";
+    document.getElementById('s1ColEffort').textContent = 'Effort';
+    document.getElementById('s1ColTheme').textContent = 'Theme';
+    document.getElementById('s1ColImpact').textContent = 'Customer impact';
+    document.getElementById('s1ColRisk').textContent = 'Risk';
+
+    const aiMsgs = {
+      RICE: '<strong>AI:</strong> Auto-tagging complete. 7 epics classified by effort, theme, customer impact and risk. RICE scores computed in Stage 2.',
+      ICE: '<strong>AI:</strong> Auto-tagging complete. Epics classified for ICE scoring — Impact, Confidence and Ease computed in Stage 2.',
+      MoSCoW: '<strong>AI:</strong> Auto-tagging complete. Epics classified and ready for MoSCoW grouping in Stage 2.'
+    };
+
+    let i = 0;
+    const iv = setInterval(()=>{
+      if(i >= s1TagData.length){
+        clearInterval(iv);
+        btn.textContent = "✓ Tagged";
+        btn.disabled = false;
+        document.getElementById('s1AiMsg').innerHTML = aiMsgs[activeFramework] || aiMsgs['RICE'];
+        return;
+      }
+      const [eId,tId,cId,rId,si] = s1TagData[i];
+      const s = SCORES[si];
+      setTimeout(()=>{
+        document.getElementById(eId).innerHTML = `<span class="badge ${effortCls[s.effort]||"b-gray"} tag-reveal">${s.effort}</span>`;
+        document.getElementById(tId).innerHTML = `<span class="badge b-gray tag-reveal">${s.theme}</span>`;
+        document.getElementById(cId).innerHTML = `<span class="badge b-blue tag-reveal">${s.customer_impact}</span>`;
+        document.getElementById(rId).innerHTML = `<span class="badge ${riskCls[s.risk]||"b-gray"} tag-reveal">${s.risk}</span>`;
+      }, 0);
+      i++;
+    }, 300);
+  }
+}
+
+// ---- STAGE 2 TABLE BUILD (framework-aware) ----
+
+// Per-framework reasoning generators
+const fwReasoning = {
+  RICE: (s) => ({
+    summary: s.reasoning,
+    components: [
+      {lbl:'Reach', val:s.reach, note:s.reach_note},
+      {lbl:'Impact', val:s.impact, note:s.impact_note},
+      {lbl:'Confidence', val:s.confidence+'%', note:s.confidence_note},
+      {lbl:'Effort', val:s.effort_sprints+' sp', note:s.effort_note}
+    ],
+    score: s.rice_score,
+    scoreLbl: 'RICE',
+    defensiveNote: `RICE score ${s.rice_score} is derived from (Reach ${s.reach} × Impact ${s.impact} × Confidence ${s.confidence}%) ÷ Effort ${s.effort_sprints} sprints. Priority ${s.priority} reflects this item's relative position across all 7 epics.`
+  }),
+  ICE: (s) => {
+    const iceScores = {1:648,2:192,3:280,4:576,5:180,6:245,7:630};
+    const ease = s.effort==='Low'?9:s.effort==='Medium'?6:3;
+    const conf = Math.round(s.confidence/10);
+    const components = [
+      {lbl:'Impact', val:s.impact, note:`Business metric impact from ${s.source}. Goal alignment: ${s.customer_impact} customer impact.`},
+      {lbl:'Confidence', val:conf, note:`Derived from source signal quality. ${s.source} = ${s.srcCls==='b-red'?'high':'medium'} signal strength.`},
+      {lbl:'Ease', val:ease, note:`Inverse of effort. ${s.effort} effort → ease score ${ease}. Lower complexity = higher ease = higher ICE score.`},
+      {lbl:'ICE Score', val:iceScores[s.id]||400, note:`ICE = Impact × Confidence × Ease = ${s.impact} × ${conf} × ${ease}.`}
+    ];
+    return {
+      summary: `Under ICE, ${s.name} is scored on how easy it is to deliver relative to its impact. Ease rewards low-complexity items — meaning quick wins surface faster than heavy strategic bets. ${s.reasoning}`,
+      components,
+      score: iceScores[s.id]||400,
+      scoreLbl: 'ICE',
+      defensiveNote: `ICE = Impact × Confidence × Ease. Ease score of ${ease} reflects ${s.effort} effort level. Confidence of ${conf} is derived from source quality (${s.source}). This framework intentionally favours items that can be shipped quickly with high certainty.`
+    };
+  },
+  MoSCoW: (s) => {
+    const cats = {7:'Must have',1:'Must have',4:'Should have',3:'Should have',6:'Could have',2:"Won't have",5:"Won't have"};
+    const catColors = {'Must have':'b-red','Should have':'b-amber','Could have':'b-teal',"Won't have":'b-gray'};
+    const catReasons = {
+      'Must have': `Classified as Must have because this epic addresses a non-negotiable obligation — compliance, primary revenue goal, or a critical dependency. Deferring it would block other work or create unacceptable business risk.`,
+      'Should have': `Classified as Should have because this epic directly supports a primary business goal with quantified ROI, but the product can ship without it if capacity forces a cut.`,
+      'Could have': `Classified as Could have because this epic is valuable but not critical to the core delivery. It improves quality or retention without blocking other features.`,
+      "Won't have": `Classified as Won't have for this cycle because the effort-to-value ratio does not justify inclusion given current capacity constraints. Recommend revisiting in H2.`
+    };
+    const cat = cats[s.id] || 'Could have';
+    return {
+      summary: `${s.name} is classified as "${cat}" under MoSCoW. ${catReasons[cat]}`,
+      components: [
+        {lbl:'Category', val:cat, note:catReasons[cat]},
+        {lbl:'Customer impact', val:s.customer_impact, note:`${s.customer_impact} customer impact from source: ${s.source}.`},
+        {lbl:'Deferral risk', val:s.risk, note:`Risk of deferring this epic is ${s.risk} based on source signal and dependency profile.`},
+        {lbl:'Effort', val:s.effort, note:s.effort_note}
+      ],
+      score: null,
+      catLabel: cat,
+      catCls: catColors[cat]||'b-gray',
+      scoreLbl: 'MoSCoW',
+      defensiveNote: `MoSCoW classification is based on: compliance obligations, primary vs secondary goal alignment, dependency chain position, and effort-to-value ratio. PM can override any classification — all changes are logged to the audit trail.`
+    };
+  },
+  Custom: (s) => {
+    const customScores = {1:8.6,2:6.2,3:6.4,4:8.2,5:5.0,6:6.0,7:9.2};
+    const needVals = {1:9,2:6,3:7,4:8,5:5,6:7,7:10};
+    const valueVals = {1:9,2:8,3:7,4:8,5:5,6:6,7:10};
+    const effortVals = {1:7,2:3,3:4,4:9,5:5,6:4,7:6};
+    const n=needVals[s.id]||5, v=valueVals[s.id]||5, e=effortVals[s.id]||5;
+    return {
+      summary: `Under the custom framework, ${s.name} is ranked using PM-defined Need, Value and Effort scores. Weighted score = (Need × 0.4) + (Value × 0.4) + (Effort × 0.2) = ${customScores[s.id]||5.0}. ${s.reasoning}`,
+      components: [
+        {lbl:'Need', val:n+'/10', note:`How essential is this epic to the current planning cycle? Entered manually in Stage 1.`},
+        {lbl:'Value', val:v+'/10', note:`Expected business or customer value. Entered manually in Stage 1.`},
+        {lbl:'Effort', val:e+'/10', note:`Delivery effort score. ${s.effort_note}`},
+        {lbl:'Weighted', val:customScores[s.id]||5.0, note:`(${n}×0.4) + (${v}×0.4) + (${e}×0.2) = ${customScores[s.id]||5.0}`}
+      ],
+      score: customScores[s.id]||5.0,
+      scoreLbl: 'Custom',
+      defensiveNote: `Custom scores are PM-defined and weighted: Need (40%) + Value (40%) + Effort (20%). All values are visible and auditable. Any change or override is logged with a reason for stakeholder review.`
+    };
+  }
+};
+
+const priorityOptions = ['P0 — Must have','P1 — High','P2 — Medium','P3 — Strategic','P3 — Low'];
+
+// shared row builder — used by all 4 frameworks
+function buildRows(tbodyId, sorted, fw, colSpan){
+  const tb = document.getElementById(tbodyId);
+  if(!tb) return;
+  tb.innerHTML = '';
+  sorted.forEach((s,i)=>{
+    const last = i===sorted.length-1;
+    const r = fwReasoning[fw] ? fwReasoning[fw](s) : fwReasoning['RICE'](s);
+    const pct = r.score ? Math.min(100,Math.round((r.score/(fw==='Custom'?10:fw==='ICE'?700:1000))*100)) : 0;
+    const depHtml = s.dependency ? `<div class="dep-box">⚠ <strong>Dependency:</strong> ${s.dependency}</div>` : '';
+
+    // score cell varies by framework
+    let scoreCell = '';
+    if(fw==='RICE'||fw==='ICE'){
+      scoreCell = `<td><div class="score-wrap"><span class="score-num">${r.score}</span><div class="score-track"><div class="score-fill" style="width:${pct}%"></div></div></div></td>`;
+    } else if(fw==='MoSCoW'){
+      scoreCell = `<td><span class="badge ${r.catCls||'b-gray'}">${r.catLabel||'—'}</span></td>`;
+    } else {
+      scoreCell = `<td><div class="score-wrap"><span class="score-num">${r.score}</span><div class="score-track"><div class="score-fill" style="width:${pct}%"></div></div></div></td>`;
+    }
+
+    // component cells for main row (cols 3–6)
+    let midCells = '';
+    if(fw==='RICE'){
+      midCells = `<td><span class="badge ${effortCls[s.effort]||'b-gray'}">${s.effort}</span></td>
+        <td><span class="badge b-gray">${s.theme}</span></td>
+        <td><span class="badge b-blue">${s.customer_impact}</span></td>
+        <td><span class="badge ${riskCls[s.risk]||'b-gray'}">${s.risk}</span></td>`;
+    } else if(fw==='ICE'){
+      const ease=s.effort==='Low'?9:s.effort==='Medium'?6:3;
+      const conf=Math.round(s.confidence/10);
+      midCells = `<td><span class="badge b-blue">${s.impact}</span></td>
+        <td><span class="badge b-blue">${conf}</span></td>
+        <td><span class="badge b-blue">${ease}</span></td>`;
+    } else if(fw==='MoSCoW'){
+      const cats={7:'Must have',1:'Must have',4:'Should have',3:'Should have',6:'Could have',2:"Won't have",5:"Won't have"};
+      const catColors={'Must have':'b-red','Should have':'b-amber','Could have':'b-teal',"Won't have":'b-gray'};
+      const cat=cats[s.id]||'Could have';
+      midCells = `<td><span class="badge ${catColors[cat]}">${cat}</span></td>
+        <td><span class="badge b-blue">${s.customer_impact}</span></td>
+        <td><span class="badge ${riskCls[s.risk]||'b-gray'}">${s.risk}</span></td>
+        <td><span class="badge ${effortCls[s.effort]||'b-gray'}">${s.effort}</span></td>`;
+    } else {
+      const customScores={1:8.6,2:6.2,3:6.4,4:8.2,5:5.0,6:6.0,7:9.2};
+      const needVals={1:9,2:6,3:7,4:8,5:5,6:7,7:10};
+      const valueVals={1:9,2:8,3:7,4:8,5:5,6:6,7:10};
+      const effortVals={1:7,2:3,3:4,4:9,5:5,6:4,7:6};
+      midCells = `<td><span class="badge b-gray">${needVals[s.id]||5}/10</span></td>
+        <td><span class="badge b-gray">${valueVals[s.id]||5}/10</span></td>
+        <td><span class="badge b-gray">${effortVals[s.id]||5}/10</span></td>`;
+    }
+
+    // components grid for reasoning panel
+    const compHtml = r.components.map(c=>`
+      <div class="rice-cell">
+        <div class="rice-lbl">${c.lbl}</div>
+        <div class="rice-val">${c.val}</div>
+        <div class="rice-note">${c.note}</div>
+      </div>`).join('');
+
+    const rowId = fw+'_'+s.id;
+    tb.innerHTML += `
+    <tr class="data-row" id="s2dr_${rowId}" onclick="toggleS2RowFw('${rowId}')" ${last?"style='border-bottom:none'":''}>
+      <td style="font-weight:500">${s.name}</td>
+      <td><span class="badge ${s.srcCls}">${s.source}</span></td>
+      ${midCells}
+      ${scoreCell}
+      <td id="s2pri_${rowId}"><span class="badge ${priCls[s.priority]||'b-gray'}">${s.priority}</span></td>
+      <td><span class="chevron" id="s2chv_${rowId}">›</span></td>
+    </tr>
+    <tr class="reasoning-row" id="s2rr_${rowId}">
+      <td colspan="${colSpan}" ${last?"style='border-bottom:none'":''}>
+        <div class="r-inner">
+          <div class="r-hd">AI reasoning (${r.scoreLbl}) — ${s.name}</div>
+          <div class="r-body">
+            <p style="margin-bottom:10px">${r.summary}</p>
+            <div class="rice-grid">${compHtml}</div>
+            <div style="margin-top:10px;padding:9px 11px;background:var(--bg-secondary);border-radius:var(--radius-sm);font-size:12px;color:var(--text-secondary);line-height:1.6">
+              <strong style="color:var(--text-primary)">Defensive reasoning:</strong> ${r.defensiveNote}
+            </div>
+            ${depHtml}
+            <div style="margin-top:12px">
+              <div style="font-size:11px;font-weight:500;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px">Override priority</div>
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                <select id="ovrPri_${rowId}" style="font-size:12px;padding:5px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-primary);color:var(--text-primary);font-family:var(--font-sans)">
+                  ${priorityOptions.map(p=>`<option${p===s.priority?' selected':''}>${p}</option>`).join('')}
+                </select>
+                <textarea id="ovrReason_${rowId}" placeholder="Reason for override (required for audit trail)…" style="flex:1;min-width:180px;height:38px;font-size:12px;padding:6px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-primary);color:var(--text-primary);font-family:var(--font-sans);resize:none"></textarea>
+                <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();saveOvrFw('${rowId}')">Save override</button>
+              </div>
+              <div id="ovrConfirm_${rowId}" style="display:none;margin-top:6px;font-size:11px;color:var(--teal)">✓ Override saved and logged to audit trail</div>
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>`;
+  });
+}
+
+function buildStage2(){
+  const sorted = [...SCORES].sort((a,b)=>b.rice_score-a.rice_score);
+  buildRows('s2tbody',    sorted, 'RICE',    9);
+  buildRows('s2tbodyICE', sorted, 'ICE',     8);
+  buildRows('s2tbodyMoSCoW', sorted, 'MoSCoW', 9);
+  buildRows('s2tbodyCustom', sorted, 'Custom', 9);
+}
+
+function toggleS2RowFw(rowId){
+  const rr = document.getElementById('s2rr_'+rowId);
+  const dr = document.getElementById('s2dr_'+rowId);
+  const open = rr.style.display==='table-row';
+  rr.style.display = open?'none':'table-row';
+  dr.classList.toggle('row-expanded',!open);
+}
+
+// keep old toggleS2Row for any lingering refs
+function toggleS2Row(id){ toggleS2RowFw('RICE_'+id); }
+
+// ---- PM OVERRIDE STATE ----
+// Stores all PM decisions: key = epic id, value = {priority, reason, originalPriority, newScore, timestamp}
+const pmOverrides = {};
+
+// Priority → quarter mapping (PM decision drives placement)
+const priToQuarter = {
+  'P0 — Must have': 1,
+  'P1 — High': 1,      // P1 can be Q1 or Q2 — handled by capacity
+  'P2 — Medium': 3,
+  'P3 — Strategic': 4,
+  'P3 — Low': 4
+};
+
+// Priority → score modifier (recalculates score to match PM decision)
+const priToScoreRange = {
+  'P0 — Must have': [900,1000],
+  'P1 — High':      [700,899],
+  'P2 — Medium':    [400,699],
+  'P3 — Strategic': [200,399],
+  'P3 — Low':       [100,199]
+};
+
+function recalcScore(epicId, newPriority){
+  const base = SCORES.find(s=>s.id===epicId);
+  if(!base) return null;
+  const range = priToScoreRange[newPriority];
+  if(!range) return base.rice_score;
+  // place score proportionally within range based on original score within its own range
+  const origRange = priToScoreRange[base.priority] || [100,1000];
+  const origPos = (base.rice_score - origRange[0]) / Math.max(1, origRange[1]-origRange[0]);
+  const newScore = Math.round(range[0] + origPos * (range[1]-range[0]));
+  return Math.max(range[0], Math.min(range[1], newScore));
+}
+
+function saveOvrFw(rowId){
+  const reason = document.getElementById('ovrReason_'+rowId);
+  if(!reason||!reason.value.trim()){
+    reason.style.border='1px solid var(--red)';
+    reason.placeholder='Please enter a reason';
+    return;
+  }
+  reason.style.border='1px solid var(--border)';
+  const sel = document.getElementById('ovrPri_'+rowId);
+  if(!sel) return;
+  const newPri = sel.value;
+
+  // parse epicId from rowId (format: FRAMEWORK_epicId)
+  const parts = rowId.split('_');
+  const epicId = parseInt(parts[parts.length-1]);
+  const epic = SCORES.find(s=>s.id===epicId);
+  if(!epic) return;
+
+  const origPri = epic.priority;
+  const newScore = recalcScore(epicId, newPri);
+
+  // store in PM override state
+  pmOverrides[epicId] = {
+    epicName: epic.name,
+    originalPriority: origPri,
+    newPriority: newPri,
+    originalScore: epic.rice_score,
+    newScore: newScore,
+    reason: reason.value.trim(),
+    framework: activeFramework,
+    timestamp: new Date().toLocaleTimeString()
+  };
+
+  // update badge in all framework views for this epic
+  ['RICE','ICE','MoSCoW','Custom'].forEach(fw=>{
+    const priEl = document.getElementById('s2pri_'+fw+'_'+epicId);
+    if(priEl) priEl.innerHTML = `<span class="badge ${priCls[newPri]||'b-gray'} fade-in">${newPri}</span><span class="badge b-purple" style="font-size:10px;margin-left:4px">PM decision</span>`;
+    // update score cell if RICE/ICE/Custom
+    const dr = document.getElementById('s2dr_'+fw+'_'+epicId);
+    if(dr && newScore && (fw==='RICE'||fw==='ICE'||fw==='Custom')){
+      const scoreEl = dr.querySelector('.score-num');
+      if(scoreEl){ scoreEl.textContent = newScore; scoreEl.style.color='var(--purple)'; }
+    }
+  });
+
+  const confirm = document.getElementById('ovrConfirm_'+rowId);
+  if(confirm){ confirm.style.display='block'; setTimeout(()=>confirm.style.display='none',3000); }
+}
+
+// keep alias
+function saveOvr(id){ saveOvrFw('RICE_'+id); }
+
+// ---- BUILD STAGE 3 FROM PM STATE ----
+function buildStage3(){
+  const overrideCount = Object.keys(pmOverrides).length;
+
+  // update AI message
+  const aiMsg = document.getElementById('s3AiMsg');
+  if(aiMsg){
+    const fw = activeFramework;
+    let msgText = `Roadmap organised using <strong>${fw}</strong> framework. `;
+    if(overrideCount > 0){
+      msgText += `<strong>${overrideCount} PM override(s)</strong> applied — PM decisions take precedence over AI scores. Capacity flags are advisory only.`;
+    } else {
+      msgText += `No PM overrides — using AI-recommended priorities. Capacity flags are advisory.`;
+    }
+    aiMsg.querySelector('.ai-text').innerHTML = '✦ ' + msgText;
+  }
+
+  // show/hide decision banner
+  const bar = document.getElementById('s3DecisionBar');
+  const countEl = document.getElementById('s3DecisionCount');
+  if(bar && countEl){
+    bar.style.display = overrideCount > 0 ? 'flex' : 'none';
+    countEl.textContent = overrideCount;
+  }
+
+  // resolve final priority per epic (PM override wins, else AI)
+  const resolved = SCORES.map(s=>{
+    const ovr = pmOverrides[s.id];
+    return {
+      ...s,
+      finalPriority: ovr ? ovr.newPriority : s.priority,
+      finalScore: ovr ? ovr.newScore : s.rice_score,
+      pmOverridden: !!ovr
+    };
+  });
+
+  // assign quarters: P0/P1 → Q1 (then Q2 if Q1 full), P2 → Q2/Q3, P3 → Q4
+  const quarters = {1:[],2:[],3:[],4:[]};
+  const effortMap2 = {1:3,2:3,3:3,4:1,5:2,6:2.5,7:1.5};
+
+  // sort by finalScore descending, P0 always first
+  const sorted = [...resolved].sort((a,b)=>{
+    const pOrder = {'P0 — Must have':0,'P1 — High':1,'P2 — Medium':2,'P3 — Strategic':3,'P3 — Low':4};
+    const pa = pOrder[a.finalPriority]||3, pb = pOrder[b.finalPriority]||3;
+    if(pa!==pb) return pa-pb;
+    return b.finalScore - a.finalScore;
+  });
+
+  // capacity tracking
+  const cap = {1:0,2:0,3:0,4:0};
+  const maxCap = 6;
+
+  sorted.forEach(s=>{
+    const effort = effortMap2[s.id]||2;
+    let q = priToQuarter[s.finalPriority] || 4;
+    // if P1 and Q1 is full, move to Q2
+    if(s.finalPriority==='P1 — High' && cap[1]+effort > maxCap) q=2;
+    // if Q2 full, P2 goes to Q3
+    if(s.finalPriority==='P2 — Medium' && cap[2]+effort > maxCap) q=3;
+    quarters[q].push({...s, effort});
+    cap[q] += effort;
+  });
+
+  // build swimlane HTML
+  const qMeta = [
+    {q:1,label:'Q1 · Jan–Mar 2026',theme:'Foundation & compliance',border:'right'},
+    {q:2,label:'Q2 · Apr–Jun 2026',theme:'Retention & reliability',border:'right'},
+    {q:3,label:'Q3 · Jul–Sep 2026',theme:'Platform stability',border:'right'},
+    {q:4,label:'Q4 · Oct–Dec 2026',theme:'Strategic investment',border:''}
+  ];
+
+  const sl = document.getElementById('s3Swimlane');
+  if(!sl) return;
+  sl.innerHTML = '';
+
+  // headers row
+  qMeta.forEach(m=>{
+    const used = cap[m.q];
+    const pct = Math.min(100,Math.round((used/maxCap)*100));
+    const over = used > maxCap;
+    const hdr = document.createElement('div');
+    hdr.style.cssText = `background:${over?'#FCEBEB':m.q===1?'var(--teal-light)':'var(--bg-secondary)'};padding:12px 14px;border-right:${m.border?'1px solid var(--border)':'none'};border-bottom:1px solid var(--border)`;
+    hdr.innerHTML = `<div style="font-size:13px;font-weight:500;color:${over?'#A32D2D':m.q===1?'var(--teal-dark)':'var(--text-primary)'}">${m.label}</div>
+      <div style="font-size:11px;color:${over?'#A32D2D':'var(--text-secondary)'};margin-top:2px">${over?'⚠ Overloaded':m.theme}</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:8px">
+        <div class="prog-bar" style="flex:1"><div class="prog-fill" style="width:${pct}%;background:${over?'var(--red)':'var(--teal)'}"></div></div>
+        <span class="badge ${over?'b-red':'b-teal'}" style="font-size:10px">${used}/${maxCap} sp</span>
+      </div>`;
+    sl.appendChild(hdr);
+  });
+
+  // items row
+  qMeta.forEach(m=>{
+    const col = document.createElement('div');
+    col.style.cssText = `padding:12px;border-right:${m.border?'1px solid var(--border)':'none'};display:flex;flex-direction:column;gap:8px;background:var(--bg-primary)`;
+    if(quarters[m.q].length===0){
+      col.innerHTML = `<div style="font-size:12px;color:var(--text-tertiary);padding:10px;text-align:center;border:1.5px dashed var(--border);border-radius:var(--radius-sm)">No items scheduled</div>`;
+    } else {
+      quarters[m.q].forEach(s=>{
+        const priShort = s.finalPriority.split('—')[0].trim();
+        const priCls2 = priCls[s.finalPriority]||'b-gray';
+        const pmBadge = s.pmOverridden ? `<span class="badge b-purple" style="font-size:10px">👤 PM</span>` : '';
+        const itemEl = document.createElement('div');
+        itemEl.className = 'lane-item';
+        itemEl.style.cssText = `flex-direction:column;align-items:flex-start;gap:6px;${s.pmOverridden?'border:1px solid var(--purple);background:var(--purple-light);':''}`;
+        itemEl.innerHTML = `<div style="font-size:12px;font-weight:500">${s.name}</div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap">
+            <span class="badge ${priCls2}">${priShort}</span>
+            <span class="badge b-gray">${s.effort} sp</span>
+            <span class="badge b-gray">${s.theme}</span>
+            ${pmBadge}
+          </div>`;
+        col.appendChild(itemEl);
+      });
+    }
+    sl.appendChild(col);
+  });
+
+  // build audit trail
+  const auditSection = document.getElementById('s3AuditSection');
+  const auditLog = document.getElementById('s3AuditLog');
+  if(auditSection && auditLog){
+    if(overrideCount > 0){
+      auditSection.style.display = 'block';
+      auditLog.innerHTML = Object.values(pmOverrides).map(o=>`
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border-light)">
+          <span style="font-size:16px;color:var(--purple);flex-shrink:0">👤</span>
+          <div>
+            <div style="font-size:13px;font-weight:500">${o.epicName}</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:2px">
+              Priority: <span style="text-decoration:line-through;color:var(--text-tertiary)">${o.originalPriority}</span> → <strong>${o.newPriority}</strong>
+              · Score recalculated: ${o.originalScore} → <strong style="color:var(--purple)">${o.newScore}</strong>
+            </div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">Reason: "${o.reason}" · ${o.framework} · ${o.timestamp}</div>
+          </div>
+        </div>`).join('');
+    } else {
+      auditSection.style.display = 'none';
+    }
+  }
+}
+
+function showJiraPreview(){ const p=document.getElementById('jiraPreview'); p.style.display=p.style.display==='none'?'block':'none'; }
+function handleJiraPush(){
+  const btn=event.currentTarget; const orig=btn.textContent; btn.disabled=true; btn.textContent='Pushing...';
+  setTimeout(()=>{ btn.textContent='✓ Pushed'; document.getElementById('jiraPreview').style.display='none';
+    const s=document.getElementById('jiraSuccess'); s.style.display='flex';
+    setTimeout(()=>{ btn.disabled=false; btn.textContent=orig; },3000);
+  },1800);
+}
+
+function showOvrModal(){ document.getElementById("ovrModal").style.display="block"; document.getElementById("ovrOverlay").style.display="block"; }
+function hideOvrModal(){ document.getElementById("ovrModal").style.display="none"; document.getElementById("ovrOverlay").style.display="none"; }
+
+// ---- WORKSPACE HANDLERS ----
+function showNewWsForm(){ document.getElementById('newWsForm').style.display='block'; }
+function hideNewWsForm(){ document.getElementById('newWsForm').style.display='none'; }
+
+function createWorkspace(){
+  const name = document.getElementById('newWsName').value.trim();
+  const audience = document.getElementById('newWsAudience').value;
+  if(!name){ alert('Please enter a workspace name.'); return; }
+  const emojis=['📦','🔧','📊','🚀','💡','🎯'];
+  const emoji = emojis[Math.floor(Math.random()*emojis.length)];
+  const id = 'wsCard_'+Date.now();
+  const grid = document.getElementById('wsGrid');
+  const card = document.createElement('div');
+  card.id = id;
+  card.className = 'ws-card';
+  card.style.cssText = 'border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;cursor:pointer;background:var(--bg-secondary);display:flex;align-items:center;gap:12px;min-width:280px;transition:all 0.15s';
+  card.innerHTML = `<div style="font-size:20px">${emoji}</div>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:500;color:var(--text-primary)">${name}</div>
+      <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">${audience} &middot; Q1&ndash;Q4 2026</div>
+    </div>
+    <span class="badge b-purple" style="font-size:10px">New</span>`;
+  card.onclick = function(){ selectWorkspace(id, name, audience); };
+  grid.appendChild(card);
+  hideNewWsForm();
+  document.getElementById('newWsName').value = '';
+}
+
+function selectWorkspace(id, name, audience){
+  document.querySelectorAll('.ws-card').forEach(c=>{
+    c.style.border = '1px solid var(--border)';
+    c.style.background = 'var(--bg-secondary)';
+    const nameEl = c.querySelector('div[style*="font-weight:500"]');
+    if(nameEl) nameEl.style.color = 'var(--text-primary)';
+    const subEl = c.querySelector('div[style*="font-size:11px"]');
+    if(subEl) subEl.style.color = 'var(--text-secondary)';
+    const badge = c.querySelector('.badge');
+    if(badge && badge.textContent==='Active'){ badge.className='badge b-gray'; badge.textContent=''; badge.style.display='none'; }
+  });
+  const el = document.getElementById(id);
+  if(el){
+    el.style.border = '2px solid var(--teal)';
+    el.style.background = 'var(--teal-light)';
+    const nameEl = el.querySelector('div[style*="font-weight:500"]');
+    if(nameEl) nameEl.style.color = 'var(--teal-dark)';
+    const subEl = el.querySelector('div[style*="font-size:11px"]');
+    if(subEl) subEl.style.color = 'var(--teal)';
+  }
+  // persist across all stages
+  activeWorkspaceName = name;
+  const wsEl = document.getElementById('topbarWs');
+  if(wsEl) wsEl.textContent = name;
+}
+
+// ---- IMPORT HANDLERS ----
+function showImportToast(msg){
+  const t=document.getElementById('importToast');
+  document.getElementById('importToastMsg').textContent=msg;
+  t.style.display='flex';
+  setTimeout(()=>{t.style.display='none';},4000);
+}
+function handleImportEpicGen(btn){
+  btn.textContent='Importing...';
+  btn.disabled=true;
+  setTimeout(()=>{
+    btn.innerHTML='&#x2B21; Import Epics &nbsp;&#10003;';
+    btn.style.borderColor='var(--teal)';
+    btn.disabled=false;
+    showImportToast('7 epics imported from the Epic Generator.');
+  },1200);
+}
+function handleImportFeatureGen(btn){
+  btn.textContent='Importing...';
+  btn.disabled=true;
+  setTimeout(()=>{
+    btn.innerHTML='&#x25C8; Import Features &nbsp;&#10003;';
+    btn.style.borderColor='var(--teal)';
+    btn.style.color='var(--teal-dark)';
+    btn.disabled=false;
+    showImportToast('14 features imported from the Feature Generator.');
+  },1200);
+}
+function handleImportCSV(){
+  const input=document.createElement('input');
+  input.type='file';
+  input.accept='.csv,.xlsx,.xls,.pdf,.docx';
+  input.onchange=()=>{
+    if(input.files[0]) showImportToast(`"${input.files[0].name}" uploaded — AI is parsing and mapping to epic schema.`);
+  };
+  input.click();
+}
+
+// ---- JIRA HANDLERS ----
+function showJiraPreview(){
+  const p=document.getElementById('jiraPreview');
+  p.style.display=p.style.display==='none'?'block':'none';
+}
+function handleJiraPush(){
+  const btn=event.currentTarget;
+  const orig=btn.textContent;
+  btn.disabled=true;
+  btn.textContent='Pushing...';
+  setTimeout(()=>{
+    btn.textContent='✓ Pushed';
+    document.getElementById('jiraPreview').style.display='none';
+    const s=document.getElementById('jiraSuccess');
+    s.style.display='flex';
+    setTimeout(()=>{btn.disabled=false;btn.textContent=orig;},3000);
+  },1800);
+}
+
+// ---- FRAMEWORK SELECTOR ----
+let activeFramework = 'RICE';
+let activeWorkspaceName = 'Digital Commerce Platform';
+const fwLabels = { RICE:'RICE', ICE:'ICE', MoSCoW:'MoSCoW', Custom:'Custom' };
+const fwBadgeCls = { RICE:'b-teal', ICE:'b-blue', MoSCoW:'b-amber', Custom:'b-purple' };
+
+function selectFramework(fw){
+  activeFramework = fw;
+  // update radio UI in Stage 1
+  const fwIdMap = { RICE:'fw_rice', ICE:'fw_ice', MoSCoW:'fw_moscow', Custom:'fw_custom' };
+  ['RICE','ICE','MoSCoW','Custom'].forEach(f=>{
+    const el = document.getElementById(fwIdMap[f]);
+    if(!el) return;
+    const dot = el.querySelector('div');
+    if(f === fw){
+      el.style.border = '1.5px solid var(--teal)';
+      el.style.background = 'var(--teal-light)';
+      dot.style.background = 'var(--teal)';
+      dot.style.borderColor = 'var(--teal)';
+    } else {
+      el.style.border = '1.5px solid var(--border)';
+      el.style.background = 'var(--bg-secondary)';
+      dot.style.background = 'transparent';
+      dot.style.borderColor = 'var(--border)';
+    }
+  });
+  // show/hide custom hint
+  const hint = document.getElementById('customHint');
+  if(hint) hint.style.display = fw==='Custom' ? 'block' : 'none';
+  // update button label
+  const tagBtn = document.getElementById('tagBtn');
+  if(tagBtn){
+    tagBtn.innerHTML = fw==='Custom' ? '&#10022; Set up custom scoring' : '&#10022; Run AI auto-tagging';
+    tagBtn.disabled = false;
+  }
+  // reset table cells to dash when switching framework
+  for(let i=1;i<=7;i++){
+    ['s1e','s1t','s1c','s1r'].forEach(p=>{
+      const el=document.getElementById(p+i);
+      if(el) el.innerHTML='&mdash;';
+    });
+  }
+  // reset column headers
+  const colMap = {
+    RICE:   ['Effort','Theme','Customer impact','Risk'],
+    ICE:    ['Effort','Theme','Customer impact','Risk'],
+    MoSCoW: ['Effort','Theme','Customer impact','Risk'],
+    Custom: ['Effort','Value','Customer Impact','Risk']
+  };
+  const cols = colMap[fw] || colMap['RICE'];
+  ['s1ColEffort','s1ColTheme','s1ColImpact','s1ColRisk'].forEach((id,i)=>{
+    const el=document.getElementById(id); if(el) el.textContent=cols[i];
+  });
+  // update Stage 1 AI message
+  const s1Msg = document.getElementById('s1AiMsg');
+  const s1Msgs = {
+    RICE:   '<strong>AI:</strong> 7 epics detected. Run AI auto-tagging to classify each epic by effort, theme, customer impact and risk for RICE scoring.',
+    ICE:    '<strong>AI:</strong> 7 epics detected. Run AI auto-tagging to classify each epic by effort, theme, customer impact and risk for ICE scoring.',
+    MoSCoW: '<strong>AI:</strong> 7 epics detected. Run AI auto-tagging to classify each epic ready for MoSCoW grouping in Stage 2.',
+    Custom: '<strong>AI:</strong> Custom scoring selected. Click "Set up custom scoring" to enter Effort, Customer Impact and Risk values manually per epic.'
+  };
+  if(s1Msg) s1Msg.innerHTML = s1Msgs[fw];
+  // sync topbar framework badge
+  const topFw = document.getElementById('topbarFwBadge');
+  if(topFw){ topFw.textContent = fw; topFw.className = 'badge '+fwBadgeCls[fw]; }
+  // rebuild Stage 2 with new framework
+  buildStage2();
+  const badge = document.getElementById('s2FwBadge');
+  if(badge){ badge.textContent = fw; badge.className = 'badge '+fwBadgeCls[fw]; }
+  const msg = document.getElementById('s2AiMsg');
+  const msgs = {
+    RICE: '<strong>AI:</strong> Scored all 7 epics using <strong>RICE</strong> framework against your business goals, capacity (6 sprints/quarter), and ROI signals. 1 dependency chain detected.',
+    ICE: '<strong>AI:</strong> Scored all 7 epics using <strong>ICE</strong> (Impact × Confidence × Ease). Higher ease scores reward low-complexity items. Override any score with a logged reason.',
+    MoSCoW: '<strong>AI:</strong> Classified all 7 epics using <strong>MoSCoW</strong> based on compliance obligations, goal alignment, and dependency signals. Drag items between categories to adjust.',
+    Custom: '<strong>AI:</strong> <strong>Custom scoring</strong> active — Need, Value, and Effort values from Stage 1 are loaded. Weighted score = (Need × 0.4) + (Value × 0.4) + (Effort × 0.2). Edit any value to recalculate live.'
+  };
+  if(msg) msg.innerHTML = msgs[fw];
+  // show correct view
+  ['RICE','ICE','MoSCoW','Custom'].forEach(f=>{
+    const v = document.getElementById('s2View'+f);
+    if(v) v.style.display = f===fw ? 'block' : 'none';
+  });
+  // hide trade-off for MoSCoW (no numeric deps)
+  const td = document.getElementById('s2Tradeoff');
+  if(td) td.style.display = fw==='MoSCoW' ? 'none' : 'block';
+  // update stage meta subtitle
+  const subLabels = { RICE:'RICE scoring with AI reasoning', ICE:'ICE scoring — Impact · Confidence · Ease', MoSCoW:'MoSCoW classification', Custom:'Custom formula scoring' };
+  stageMeta[1].sub = subLabels[fw]+' and trade-off analysis';
+}
+
+// ---- CUSTOM SCORE RECALCULATION ----
+function recalcCustom(input){
+  const row = input.closest('tr');
+  const inputs = row.querySelectorAll('.custom-score-input');
+  if(inputs.length < 3) return;
+  const need = parseFloat(inputs[0].value)||0;
+  const value = parseFloat(inputs[1].value)||0;
+  const effort = parseFloat(inputs[2].value)||0;
+  const score = ((need*0.4)+(value*0.4)+(effort*0.2)).toFixed(1);
+  const scoreCell = row.querySelector('.custom-score-cell');
+  if(scoreCell) scoreCell.textContent = score;
+}
+
+// ---- NAVIGATION ----
+let currentStage = 1;
+const stageMeta = [
+  {title:"Stage 1 — Capture &amp; Context", sub:"Import backlog items and define planning constraints", hint:"Click 'Run AI auto-tagging' to begin"},
+  {title:"Stage 2 — Group &amp; Prioritize", sub:"RICE scoring with AI reasoning and trade-off analysis", hint:"Click any row to expand AI reasoning"},
+  {title:"Stage 3 — Organize", sub:"AI-suggested quarter distribution", hint:"Review capacity and adjust items between quarters"},
+  {title:"Stage 4 — Validate", sub:"Roadmap health check across 3 dimensions", hint:"Resolve flagged issues before stakeholder review"},
+  {title:"Stage 5 — Communicate", sub:"AI-generated narrative and exec one-pager", hint:"Share or export when ready"},
+  {title:"Stage 6 — Monitor", sub:"Continuous delivery tracking and signal feed", hint:"AI surfaces new signals automatically"}
+];
+
+function goStage(n){
+  if(n<1||n>6) return;
+  // hide old stage panel
+  document.getElementById("stage"+currentStage).classList.remove("active");
+  // update old stepper bubble
+  document.getElementById("nav"+currentStage).classList.remove("active");
+  document.getElementById("dot"+currentStage).classList.remove("active");
+  currentStage = n;
+  // show new stage panel
+  document.getElementById("stage"+n).classList.add("active");
+  // trigger dynamic builds when entering stages
+  if(n===3) buildStage3();
+  // update stepper bubbles
+  for(let i=1;i<=6;i++){
+    const el = document.getElementById("nav"+i);
+    el.classList.remove("active","done");
+    if(i < n) el.classList.add("done");
+    else if(i === n) el.classList.add("active");
+  }
+  // update dot nav
+  document.getElementById("dot"+n).classList.add("active");
+  // update stepper progress bar (0% at step1, 100% at step6)
+  const pct = Math.round(((n-1)/5)*100);
+  document.getElementById("stepperProgress").style.width = pct+"%";
+  // update topbar
+  const m = stageMeta[n-1];
+  document.getElementById("topbarTitle").innerHTML = m.title;
+  document.getElementById("topbarSub").textContent = m.sub;
+  document.getElementById("footerHint").textContent = m.hint;
+  document.getElementById("stageCounter").textContent = "Stage "+n+" of 6";
+  document.getElementById("nextBtn").textContent = n===6?"Done ✓":"Next stage →";
+}
+
+// ---- INIT ----
+buildStage2();
+</script>
+</body>
